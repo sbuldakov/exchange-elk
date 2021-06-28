@@ -1,0 +1,37 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - C:\inetpub\logs\LogFiles\W3SVC1\*.log
+    - C:\inetpub\logs\LogFiles\W3SVC2\*.log
+  multiline:
+    pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+    negate: true
+    match: after
+  tags: ['IIS', 'ex-srv1']
+  exclude_lines: ['^#']
+
+- type: log
+  enabled: true
+  paths:
+    - С:\Program Files\Microsoft\Exchange Server\V15\TransportRoles\Logs\MessageTracking\*
+  multiline:
+    pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+    negate: true
+    match: after
+  tags: ['Tracking', 'ex-srv1']
+  exclude_lines: ['^#']
+ 
+output.logstash:
+  hosts: ["logstash1.domain.com:5044"]
+ 
+processors:
+- drop_fields:
+    fields: ["agent.ephemeral_id", "agent.hostname", "agent.id", "agent.type", "agent.version", "agent", "ecs.version", "ecs", "input.type", "input", "log.offset", "version"]
+ 
+logging.level: info
+logging.to_files: true
+logging.files:
+  name: filebeat
+  keepfiles: 10
+  rotateeverybytes: 1048576
